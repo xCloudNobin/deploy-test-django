@@ -1,0 +1,67 @@
+{% extends "taskboard/base.html" %}
+{% block title %}{{ project.name }}{% endblock %}
+{% block content %}
+<a class="btn secondary" href="{% url 'project-list' %}">&larr; Projects</a>
+<h1>{{ project.name }}</h1>
+<p class="muted">{{ project.description|default:"No description." }}</p>
+<div class="card">
+  <span class="badge status-{{ project.status }}">{{ project.get_status_display }}</span>
+  <div class="progress-track" style="margin-top:0.75rem">
+    <div class="progress-fill" style="width: {{ project.progress }}%"></div>
+  </div>
+  <span class="muted">Progress: {{ project.progress }}%</span>
+  <p class="muted">Created {{ project.created_at|date:"Y-m-d H:i" }} · Updated {{ project.updated_at|date:"Y-m-d H:i" }}</p>
+  <a class="btn secondary" href="{% url 'project-edit' project.pk %}">Edit project</a>
+  <a class="btn danger" href="{% url 'project-delete' project.pk %}">Delete project</a>
+</div>
+
+<div class="card">
+  <h2>Tasks</h2>
+  <nav class="filters">
+    <form method="get" action="{% url 'project-detail' project.pk %}">
+      <input type="search" name="q" value="{{ q }}" placeholder="Search tasks…">
+      <select name="status">
+        <option value="">All statuses</option>
+        {% for value, label in project_task_statuses %}
+          <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select name="priority">
+        <option value="">All priorities</option>
+        {% for value, label in task_priorities %}
+          <option value="{{ value }}" {% if priority_filter == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">Filter</button>
+    </form>
+  </nav>
+  <table>
+    <thead><tr><th>Title</th><th>Status</th><th>Priority</th><th>Due</th><th></th></tr></thead>
+    <tbody>
+    {% for task in tasks %}
+      <tr>
+        <td>{{ task.title }}</td>
+        <td><span class="badge status-{{ task.status }}">{{ task.get_status_display }}</span></td>
+        <td><span class="badge priority-{{ task.priority }}">{{ task.get_priority_display }}</span></td>
+        <td>{{ task.due_date|default:"—" }}</td>
+        <td>
+          <a href="{% url 'task-edit' task.pk %}">Edit</a>
+          <a href="{% url 'task-delete' task.pk %}">Delete</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5" class="muted">No tasks match.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Add a task</h2>
+  <form method="post" action="{% url 'task-create' %}">
+    {% csrf_token %}
+    {{ quick_form.as_p }}
+    <button type="submit">Create task</button>
+  </form>
+</div>
+{% endblock %}

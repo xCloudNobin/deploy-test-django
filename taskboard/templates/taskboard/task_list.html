@@ -1,0 +1,52 @@
+{% extends "taskboard/base.html" %}
+{% block title %}Tasks{% endblock %}
+{% block content %}
+<h1>All tasks</h1>
+<div class="card">
+  <nav class="filters">
+    <form method="get" action="{% url 'task-list' %}">
+      <input type="search" name="q" value="{{ q }}" placeholder="Search tasks…">
+      <select name="status">
+        <option value="">All statuses</option>
+        {% for value, label in status_choices %}
+          <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select name="priority">
+        <option value="">All priorities</option>
+        {% for value, label in priority_choices %}
+          <option value="{{ value }}" {% if priority_filter == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select name="project">
+        <option value="">All projects</option>
+        {% for project in projects %}
+          <option value="{{ project.pk }}" {% if project_filter == project.pk|stringformat:"s" %}selected{% endif %}>{{ project.name }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">Filter</button>
+    </form>
+  </nav>
+  <table>
+    <thead><tr><th>Title</th><th>Project</th><th>Status</th><th>Priority</th><th>Due</th><th></th></tr></thead>
+    <tbody>
+    {% for task in tasks %}
+      <tr>
+        <td>{{ task.title }}</td>
+        <td><a href="{% url 'project-detail' task.project_id %}">{{ task.project.name }}</a></td>
+        <td><span class="badge status-{{ task.status }}">{{ task.get_status_display }}</span></td>
+        <td><span class="badge priority-{{ task.priority }}">{{ task.get_priority_display }}</span></td>
+        <td>{{ task.due_date|default:"—" }}</td>
+        <td>
+          <a href="{% url 'task-edit' task.pk %}">Edit</a>
+          <a href="{% url 'task-delete' task.pk %}">Delete</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="6" class="muted">No tasks match.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+<a class="btn" href="{% url 'task-create' %}">New Task</a>
+{% endblock %}
