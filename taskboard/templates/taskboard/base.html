@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Taskboard{% endblock %} · Django Taskboard</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background: #f4f6f8; color: #222;
+  }
+  header.topbar {
+    background: #1b2a41; color: #fff; padding: 0.75rem 1.25rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    flex-wrap: wrap;
+  }
+  header.topbar a { color: #fff; text-decoration: none; margin-right: 1rem; }
+  header.topbar a:hover { text-decoration: underline; }
+  header.topbar .brand { font-weight: 700; font-size: 1.1rem; }
+  main { max-width: 960px; margin: 1.5rem auto; padding: 0 1.25rem; }
+  .card { background: #fff; border: 1px solid #dfe3e8; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  h1 { font-size: 1.4rem; margin: 0 0 1rem; }
+  h2 { font-size: 1.1rem; margin: 0 0 0.75rem; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid #eef0f3; vertical-align: top; }
+  th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: #59626f; }
+  .field { width: 100%; padding: 0.5rem; border: 1px solid #c9ced6; border-radius: 6px; font: inherit; }
+  label { display: block; font-weight: 600; margin: 0.75rem 0 0.25rem; }
+  button, .btn {
+    display: inline-block; background: #2563eb; color: #fff; border: 0;
+    padding: 0.55rem 1rem; border-radius: 6px; cursor: pointer; font: inherit; margin-top: 0.5rem;
+  }
+  a.btn { text-decoration: none; }
+  .btn.secondary { background: #64748b; }
+  .btn.danger { background: #dc2626; }
+  .badge { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 600; }
+  .status-todo { background: #eef2ff; color: #3730a3; }
+  .status-in_progress { background: #fef3c7; color: #92400e; }
+  .status-done { background: #d1fae5; color: #065f46; }
+  .priority-high { background: #fee2e2; color: #991b1b; }
+  .priority-medium { background: #f1f5f9; color: #334155; }
+  .priority-low { background: #e0f2fe; color: #075985; }
+  .status-active { background: #d1fae5; color: #065f46; }
+  .status-archived { background: #f1f5f9; color: #475569; }
+  .errorlist { color: #b91c1c; font-size: 0.85rem; margin: 0.25rem 0 0; padding-left: 1.1rem; }
+  .flash { padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; }
+  .flash.success { background: #d1fae5; color: #065f46; }
+  .flash.error { background: #fee2e2; color: #991b1b; }
+  .progress-track { background: #e2e8f0; border-radius: 999px; height: 10px; width: 100%; overflow: hidden; }
+  .progress-fill { background: #2563eb; height: 100%; }
+  footer { max-width: 960px; margin: 2rem auto; padding: 0 1.25rem; color: #667080;
+    font-size: 0.8rem; }
+  nav.filters { margin-bottom: 0.75rem; }
+  nav.filters input, nav.filters select { padding: 0.45rem; border: 1px solid #c9ced6; border-radius: 6px; }
+  .muted { color: #667080; font-size: 0.85rem; }
+  .strip { padding: 0.5rem 1rem; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <span class="brand">Django Taskboard</span>
+    <span class="muted" style="color:#cbd5e1">release {{ release }}</span>
+  </div>
+  <nav>
+    {% if user.is_authenticated %}
+      <a href="{% url 'project-list' %}">Projects</a>
+      <a href="{% url 'task-list' %}">All Tasks</a>
+      <a href="{% url 'project-create' %}">New Project</a>
+      <a href="{% url 'task-create' %}">New Task</a>
+      <span style="color:#cbd5e1">{{ user.get_username }}</span>
+      <form method="post" action="{% url 'logout' %}" style="display:inline">
+        {% csrf_token %}
+        <button type="submit" class="secondary" style="padding:0.3rem 0.7rem;margin:0">Log out</button>
+      </form>
+    {% else %}
+      <a href="{% url 'login' %}">Log in</a>
+    {% endif %}
+  </nav>
+</header>
+<main>
+  {% if messages %}
+    {% for message in messages %}
+      <div class="flash {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+<footer>MIT licensed fixture for the xCloud app-compatibility suite · release
+  {{ release }} · Django {{ django_version }}</footer>
+</body>
+</html>
